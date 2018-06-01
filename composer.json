@@ -41,7 +41,7 @@
     "extra": {
       "laravel": {
         "providers": [
-          "p4scu41\\BaseCRUDApi\\BaseCRUDServiceProvider"
+          "p4scu41\\BaseCRUDApi\\BaseCRUDApiServiceProvider"
         ]
       },
       "branch-alias": {

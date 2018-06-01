@@ -17,13 +17,13 @@ auto discovery feature.**
 
 Add service provider to `config/app.php` in `providers` section
 ```php
-p4scu41\BaseCRUDApi\BaseCRUDServiceProvider::class,
+p4scu41\BaseCRUDApi\BaseCRUDApiServiceProvider::class,
 ```
 
 ### Publish Configuration File
 
 ```bash
-php artisan vendor:publish --provider="p4scu41\BaseCRUDApi\BaseCRUDServiceProvider" --tag="config"
+php artisan vendor:publish --provider="p4scu41\BaseCRUDApi\BaseCRUDApiServiceProvider" --tag="config"
 ```
 
 ## Usage
