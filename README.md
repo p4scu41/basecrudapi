@@ -26,6 +26,63 @@ p4scu41\BaseCRUDApi\BaseCRUDApiServiceProvider::class,
 php artisan vendor:publish --provider="p4scu41\BaseCRUDApi\BaseCRUDApiServiceProvider" --tag="config"
 ```
 
+### Config Vendors
+
+    * Laravel Activitylog [https://github.com/spatie/laravel-activitylog]
+        - php artisan vendor:publish --provider="Spatie\Activitylog\ActivitylogServiceProvider"
+        - Take a look at config/activitylog.php before run migration
+        - php artisan migrate
+        - Add in .env ACTIVITY_LOGGER_ENABLED=true
+    * Laravel 5 Repositories [https://github.com/andersao/l5-repository]
+        - In your config/app.php add Prettus\Repository\Providers\RepositoryServiceProvider::class to the end of the providers array
+        - php artisan vendor:publish --provider "Prettus\Repository\Providers\RepositoryServiceProvider"
+        - Take a look at config/repository.php
+    * LERN (Laravel Exception Recorder and Notifier) [https://github.com/tylercd100/lern#lern-laravel-exception-recorder-and-notifier]
+        - php artisan vendor:publish --provider="Tylercd100\LERN\LERNServiceProvider"
+        - Take a look at config/lern.php before run migration
+        - php artisan migrate
+    * Laravel Stats Tracker [https://github.com/antonioribeiro/tracker]
+        - In your config/app.php add PragmaRX\Tracker\Vendor\Laravel\ServiceProvider::class to the end of the providers array
+        - php artisan vendor:publish --provider=PragmaRX\\Tracker\\Vendor\\Laravel\\ServiceProvider
+        - By default everything is disabled you need to decide what you want to log. Take a look at config/tracker.php and eneable some options:
+        ```php
+            'enabled' => true,
+            'use_middleware' => true,
+            'do_not_track_paths' => [
+                // 'api/*',
+            ],
+            'do_not_track_ips' => [
+                '127.0.0.0/24', // Local: range 127.0.0.1 - 127.0.0.255
+                '192.168.0.0/24', // Megacable
+                '192.168.1.0/24', // Infinitum
+            ],
+            'log_untrackable_sessions' => false,
+            'log_enabled' => true,
+            'console_log_enabled' => true,
+            'geoip_database_path' => storage_path('geoip'),
+            'log_geoip' => true,
+            'log_user_agents' => true,
+            'log_users' => true,
+            'log_devices' => true,
+            'log_languages' => true,
+            'log_referers' => true,
+            'log_paths' => true,
+            'log_queries' => true,
+            'log_routes' => true,
+            'user_model' => p4scu41\BaseCRUDApi\Models\User::class,
+            'stats_panel_enabled' => true,
+        ```
+        - Add \PragmaRX\Tracker\Vendor\Laravel\Middlewares\Tracker::class to the array $middleware in app/Http/Kernel.php
+        - Create a database connection called tracker in config/database.php
+        - php artisan tracker:tables
+        - php artisan migrate
+        - composer require "geoip2/geoip2":"~2.0"
+        - php artisan tracker:updategeoip
+
+### Configuration
+
+If you would like to add the JWT incorporated, change all the references to the model User to p4scu41\BaseCRUDApi\Models\User::class in the directory config
+
 ## Usage
 
 CHANGE ME
