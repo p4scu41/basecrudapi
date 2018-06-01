@@ -76,10 +76,22 @@ php artisan vendor:publish --provider="p4scu41\BaseCRUDApi\BaseCRUDApiServicePro
         - Create a database connection called tracker in config/database.php
         - php artisan tracker:tables
         - php artisan migrate
-        - composer require "geoip2/geoip2":"~2.0"
+        - composer require geoip2/geoip2
         - php artisan tracker:updategeoip
+        - sudo chmod -R 777 storage/geoip/
+        - git clone https://github.com/BlackrockDigital/startbootstrap-sb-admin-2.git public/templates/sb-admin-2
+        - cd public/templates/sb-admin-2
+        - git checkout tags/v3.3.7+1
+        - git checkout -b v3.3.7+1
+        - sudo npm install -g bower
+        - bower install
+        - sudo npm install --global gulp-cli
+        - gulp
 
 ### Configuration
+
+In your config/app.php add p4scu41\BaseCRUDApi\Providers\ResponseMacroServiceProvider::class to the end of the providers array
+
 
 If you would like to add the JWT incorporated, change all the references to the model User to p4scu41\BaseCRUDApi\Models\User::class in the directory config
 

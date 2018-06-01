@@ -205,10 +205,12 @@ class ResponseMacroServiceProvider extends ServiceProvider
             }
 
             if (ReflectionSupport::isNotSetOrEmpty($data, 'meta') && config('app.debug')) {
-                    $trace = explode(PHP_EOL, $e->getTraceAsString());
+                    $traceAsString = ExceptionSupport::removeNoAppLinesFromTrace($e);
+                    $traceAsArray = explode(PHP_EOL, $e->getTraceAsString());
+
                     // On windows
                     if (empty($trace) || count($trace) == 1) {
-                        $trace = explode("\n", $e->getTraceAsString());
+                        $traceAsArray = explode("\n", $traceAsString);
                     }
 
                     $data['meta']['exception'] = get_class($e);
@@ -217,7 +219,7 @@ class ResponseMacroServiceProvider extends ServiceProvider
                     $data['meta']['file']      = $e->getFile();
                     $data['meta']['line']      = $e->getLine();
                     $data['meta']['input']     = request()->all();
-                    $data['meta']['trace']     = $trace; // $ExceptionSupport::removeNoAppLinesFromTrace($e);
+                    $data['meta']['trace']     = $traceAsArray;
             }
 
             Log::debug(ExceptionSupport::getInfo($e));
