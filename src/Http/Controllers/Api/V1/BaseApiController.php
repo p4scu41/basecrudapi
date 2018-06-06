@@ -45,6 +45,8 @@ class BaseApiController extends BaseController
     public function index(Request $request)
     {
         try {
+            parent::index($request);
+
             return response()->jsonPaginate($this->repository->paginate());
         } catch (Exception $e) {
             LERN::record($e);
@@ -62,6 +64,8 @@ class BaseApiController extends BaseController
     public function store(Request $request)
     {
         try {
+            parent::store($request);
+
             $model = $this->repository->create($request->all());
 
             return response()->jsonSuccess(['data' => $model, 'status' => SymfonyResponse::HTTP_CREATED]);
@@ -88,6 +92,8 @@ class BaseApiController extends BaseController
     public function show($id)
     {
         try {
+            parent::show($id);
+
             $model = $this->repository->findOrFail($id);
 
             return response()->jsonSuccess(['data' => $model]);
@@ -110,6 +116,8 @@ class BaseApiController extends BaseController
     public function update(Request $request, $id)
     {
         try {
+            parent::update($request, $id);
+
             $model = $this->repository->update($request->all(), $id);
 
             return response()->jsonSuccess(['data' => $model]);
@@ -138,6 +146,8 @@ class BaseApiController extends BaseController
     public function destroy($id)
     {
         try {
+            parent::destroy($id);
+
             $model = $this->repository->findOrFail($id);
 
             $this->repository->delete($id);
