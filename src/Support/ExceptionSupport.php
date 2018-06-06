@@ -78,7 +78,11 @@ class ExceptionSupport
             // 'Headers: ' . json_encode(request()->header()) . PHP_EOL . "\t" .
             // 'Server: '  . json_encode(request()->server()) . PHP_EOL . "\t" .
             'File: '    . $file . PHP_EOL . "\t" .
-            (Auth::check() ? 'Session User: ' . json_encode(Auth::user()) . PHP_EOL . "\t" : '' ) .
+            (Auth::check() ? 'Session User ID: ' . Auth::user()->id . PHP_EOL . "\t" : '' ) .
+            'php_sapi_name: ' . php_sapi_name() . PHP_EOL .
+            'user_process: ' . (function_exists('posix_getpwuid') ?
+                    (posix_getpwuid(posix_geteuid())['name'] ) : // Linux
+                    getenv('USERNAME')) . PHP_EOL . // Windows
             'Exception: ' . get_class($e) . '['.$e->getCode().']: ' . $e->getMessage() .
             (count(request()->all()) ? PHP_EOL . "\t" . 'Data: ' . json_encode(request()->all()) : '').
             (!empty($extra_data) ? PHP_EOL . "\t" . 'Extra Data: ' . $extra_data : '').
