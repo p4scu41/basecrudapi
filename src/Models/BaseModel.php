@@ -155,4 +155,13 @@ class BaseModel extends Model
 
         static::registerEventsHandlers();
     }
+
+    /** 
+     * Get table name associated 
+     * @return string 
+     */ 
+    public static function getTableName() 
+    { 
+        return with(new static)->getTable(); 
+    } 
 }

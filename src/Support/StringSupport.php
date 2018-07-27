@@ -94,4 +94,36 @@ class StringSupport
 
         return $result;
     }
+
+    /**
+     * Validate email with filter_var and checkdnsrr
+     *
+     * @param string $email
+     * @return bool|string true if the email is valid or error message in any other case
+     */
+    public static function isValidEmail(string $email)
+    {
+        // First the general syntax of the string is checked with filter_var
+        if (filter_var(trim($email), FILTER_VALIDATE_EMAIL) === false) {
+            return 'format invalid';
+        }
+
+        // Then the domain substring (after the '@') is checked using the 'checkdnsrr' function
+        $email_explode = explode('@', $email);
+        $domain = array_pop($email_explode);
+        // Add a dot to the end of the host name to make a fully qualified domain name
+        $domain = trim($domain) . '.';
+
+        if (!checkdnsrr($domain)) {
+            return 'domain invalid';
+        }
+
+        // Fetch DNS Resource Records associated with a hostname
+        // print_r((dns_get_record($domain));
+        // print_r((getmxrr($domain, $mxhosts, $weight));
+        // print_r(($mxhosts);
+        // print_r(($weight);
+
+        return true;
+    }
 }

@@ -44,7 +44,7 @@ trait ValidationModel
     public static $customAttributes = [];
 
     /**
-     * Undocumented function
+     * Perform validation
      *
      * @param array $data
      *

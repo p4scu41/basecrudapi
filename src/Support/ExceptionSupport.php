@@ -44,8 +44,6 @@ class ExceptionSupport
         }
 
         if (!empty($lines)) {
-
-
             // Only get lines from App
             // $filtered = preg_grep('/APP/i', $lines);
 
@@ -79,12 +77,12 @@ class ExceptionSupport
             // 'Server: '  . json_encode(request()->server()) . PHP_EOL . "\t" .
             'File: '    . $file . PHP_EOL . "\t" .
             (Auth::check() ? 'Session User ID: ' . Auth::user()->id . PHP_EOL . "\t" : '' ) .
-            'php_sapi_name: ' . php_sapi_name() . PHP_EOL .
+            'php_sapi_name: ' . php_sapi_name() . PHP_EOL . "\t"  .
             'user_process: ' . (function_exists('posix_getpwuid') ?
                     (posix_getpwuid(posix_geteuid())['name'] ) : // Linux
                     getenv('USERNAME')) . PHP_EOL . // Windows
-            'Exception: ' . get_class($e) . '['.$e->getCode().']: ' . $e->getMessage() .
-            (count(request()->all()) ? PHP_EOL . "\t" . 'Data: ' . json_encode(request()->all()) : '').
+            'Exception: ' . get_class($e) . '['.$e->getCode().']: ' . $e->getMessage() . PHP_EOL . "\t" .
+            'Data: ' . json_encode(request()->all()) .
             (!empty($extra_data) ? PHP_EOL . "\t" . 'Extra Data: ' . $extra_data : '').
             ($include_trace ? PHP_EOL . static::removeNoAppLinesFromTrace($e) : '');
             //$e->getTraceAsString()

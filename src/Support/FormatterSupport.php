@@ -107,4 +107,16 @@ class FormatterSupport
 
         return $formatted;
     }
+
+    /**
+     * Get SQL query from the Query Builder
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return string
+     */
+    public static function getSqlFromQueryBuilder($query)
+    {
+        return StringSupport::sqlReplaceBindings($query->toSql(), $query->getBindings());
+    }
 }
