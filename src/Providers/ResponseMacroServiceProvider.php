@@ -3,10 +3,10 @@
 namespace p4scu41\BaseCRUDApi\Providers;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\ServiceProvider;
 use p4scu41\BaseCRUDApi\Support\ExceptionSupport;
 use p4scu41\BaseCRUDApi\Support\ReflectionSupport;
-use Response;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
@@ -222,7 +222,12 @@ class ResponseMacroServiceProvider extends ServiceProvider
                     $data['meta']['trace']     = $traceAsArray;
             }
 
-            Log::debug(ExceptionSupport::getInfo($e));
+            Log::debug($data['message'], $data);
+
+            // Check to see if LERN is installed otherwise you will not get an exception.
+            if (app()->bound("lern")) {
+                \Tylercd100\LERN\Facades\LERN::record($e);
+            }
 
             return ResponseMacroServiceProvider::responseJson($data, $status, $headers);
         });

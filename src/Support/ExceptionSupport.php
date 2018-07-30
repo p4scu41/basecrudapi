@@ -2,8 +2,8 @@
 
 namespace p4scu41\BaseCRUDApi\Support;
 
-use Auth;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -80,7 +80,7 @@ class ExceptionSupport
             'php_sapi_name: ' . php_sapi_name() . PHP_EOL . "\t"  .
             'user_process: ' . (function_exists('posix_getpwuid') ?
                     (posix_getpwuid(posix_geteuid())['name'] ) : // Linux
-                    getenv('USERNAME')) . PHP_EOL . // Windows
+                    getenv('USERNAME')) . PHP_EOL . "\t" . // Windows
             'Exception: ' . get_class($e) . '['.$e->getCode().']: ' . $e->getMessage() . PHP_EOL . "\t" .
             'Data: ' . json_encode(request()->all()) .
             (!empty($extra_data) ? PHP_EOL . "\t" . 'Extra Data: ' . $extra_data : '').

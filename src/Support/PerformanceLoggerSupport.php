@@ -2,13 +2,14 @@
 
 namespace p4scu41\BaseCRUDApi\Support;
 
+use Illuminate\Database\Eloquent\Model;
 use Performance\Config;
 use Performance\Performance;
 use ReflectionMethod;
 
 /**
- * Clase contendedora de funciones útiles
- * Hace uso de bvanhoekelen/performance
+ * Use bvanhoekelen/performance
+ * Work with PerformanceLoggerFinish Middleware
  *
  * @package p4scu41\BaseCRUDApi\Support
  * @author  Pascual Pérez <pasperezn@gmail.com>
@@ -19,94 +20,121 @@ use ReflectionMethod;
  * public array $points
  * public array $params
  * public array $values
- * public boolean $queryLog
- * private array $paramsValues
+ * public boolean $query_log_enabled
+ * private array $params_values
  * public int $time
  * public int $memory
  *
  * @method public void getParamsValues()
  * @method public void start(string $label = null)
  * @method public void message(string $message)
- * @method public string getInfo()
- * @method public string addPoint(string $label)
- * @method public string finishPoint()
+ * @method public array getInfo()
+ * @method public void addPoint(string $label)
+ * @method public void finishPoint()
+ * @method public void saveAll()
  */
-class PerformanceLoggerSupport
+class PerformanceLoggerSupport extends Model
 {
     /**
-     * Clase
-     *
+     * @inheritDoc
+     */
+    protected $table = 'performance';
+
+    /**
+     * @inheritDoc
+     */
+    protected $fillable = [
+        'label',
+        'time',
+        'memory',
+        'memory_peak',
+        'messages',
+        'queries',
+    ];
+
+    /**
+     * @inheritDoc
+     */
+    const UPDATED_AT = null;
+
+    /**
      * @var string
      */
     public $class = '';
 
     /**
-     * Método
-     *
      * @var string
      */
     public $function = '';
 
     /**
-     * Label de performance
-     *
      * @var string
      */
     public $label = '';
 
     /**
-     * Parámetros de la función
+     * Function arguments
      *
      * @var array
      */
     public $params = [];
 
     /**
-     * Valores de los parametros de la función, deben de estar en el mismo orden que $params
+     * Labels
+     *
+     * @var array
+     */
+    public $points = [];
+
+    /**
+     * Arguments Values
      *
      * @var array
      */
     public $values = [];
 
     /**
-     * Define si se logueará las consultas sql, Default true
+     * Whether log sql queries
      *
      * @var boolean
      */
-    public $queryLog = false;
+    public $query_log_enabled = false;
 
     /**
-     * Arreglo que contiene la lista de parámetros con su correspondiente valor
+     * List of arguments with their respective values
      *
      * @var array
      */
-    private $paramsValues = [];
+    private $params_values = [];
 
     /**
-     * Guarda el tiempo total de ejecución
-     *
      * @var int
      */
     public $time;
 
     /**
-     * Guarda el uso de memoria total
-     *
      * @var int
      */
     public $memory;
 
     /**
-     * Construye el arreglo $paramsValues a partir de los valores en $params y $values
+     * Info after finish
+     *
+     * @var int
+     */
+    public $result;
+
+    /**
+     * Build $params_values
      *
      * @return void
      */
     public function getParamsValues()
     {
-        // Si no se proporcionó la lista de parámetros y existe el método en la clase que se especificó,
-        // se obtiene la informacion de los parámetros que recibe el método de la clase
+        // If $params are empty and function exists in the class
+        // retrieve function information
         if (empty($this->params) && method_exists($this->class, $this->function)) {
-            $method = new \ReflectionMethod($this->class, $this->function);
+            $method = new ReflectionMethod($this->class, $this->function);
 
             if ($method) {
                 foreach ($method->getParameters() as $parameter) {
@@ -116,15 +144,15 @@ class PerformanceLoggerSupport
         }
 
         foreach ($this->params as $index => $value) {
-            $this->paramsValues[] = $this->params[$index].(
+            $this->params_values[] = $this->params[$index].(
                     isset($this->values[$index]) ? '='.$this->values[$index] : ''
                 );
         }
     }
 
     /**
-     * Ejecuta Performance::point($this->label);
-     * Si no se pasa el valor de label, se toma la concatenación de $class y $function
+     * Runt Performance::point($this->label);
+     * If $this->label is empty, use $class and $function
      *
      * @param string $label Default null
      *
@@ -132,14 +160,12 @@ class PerformanceLoggerSupport
      */
     public function start($label = null)
     {
-        // Keep track the SQL statement
-        Config::setQueryLog($this->queryLog);
+        Config::setQueryLog($this->query_log_enabled);
 
         // If label no set, take the name of class and function
         $this->label = $label ?: $this->class.'::'.$this->function;
-        $this->points[] = $this->label;
 
-        Performance::point($this->label);
+        $this->addPoint($this->label);
     }
 
     /**
@@ -156,45 +182,45 @@ class PerformanceLoggerSupport
 
     /**
      * Return the information of performance
-     * Time, Memory, MemoryPeak, Messages, Querys
+     * Time, Memory, MemoryPeak, Messages, Queries
      *
-     * @return string
+     * @return array
      */
     public function getInfo()
     {
-        $exportPerformance = Performance::export();
-        $exportPerformanceGet = $exportPerformance->get();
-        $pointsCollect = collect($exportPerformanceGet['points']);
+        $pointsCollect = collect(Performance::export()->points()->get());
+        // There are some points created by default, exclude them
         $points = $pointsCollect->filter(function ($item, $key) {
             return in_array($item->getLabel(), $this->points);
         })->toArray();
-        $results = [];
+        $this->result = [];
 
         if (!empty($points)) {
             foreach ($points as $point) {
                 $messages     = $point->getNewLineMessage();
-                $this->time   = round($point->getDifferenceTime(), 3);
+                $this->time   = round($point->getDifferenceTime(), 3); // Seconds
                 $this->memory = round($point->getDifferenceMemory()/1024/1024); // Convert to MB
-                $querys       = collect($point->getQueryLog())->map(function ($item, $key) {
+                $queries      = collect($point->getQueryLog())->map(function ($item, $key) {
                     return number_format($item->time, 3) . 'ms -> ' .
-                    StringSupport::sqlReplaceBindings($item->query, $item->bindings). ';' ;
-                })->all();
+                        StringSupport::sqlReplaceBindings($item->query, $item->bindings). ';' ;
+                })->toArray();
 
-                $results[] = '[*Performance*] ===> ' .
-                    $point->getLabel() . '(' . implode(', ', $this->paramsValues) . ')' . ' ' . PHP_EOL .
-                    'Time: ' . $this->time . 's, ' .
-                    'Memory: ' . FormatterSupport::parseBytes($this->memory) . ', '.
-                    'MemoryPeak: ' . FormatterSupport::parseBytes($point->getMemoryPeak()) .
-                    (empty($messages) ? '' :
-                        ', ' . PHP_EOL . 'Messages: ' . PHP_EOL . "\t" . implode(PHP_EOL . "\t", $messages)) .
-                    (empty($querys) ? '' :
-                        ', ' . PHP_EOL . 'Querys '. count($querys) . ': ' . PHP_EOL . "\t" . implode(PHP_EOL . "\t", $querys));
+                $info         = [
+                    'label'       => $point->getLabel() . '(' . implode(', ', $this->params_values) . ')',
+                    'time'        => $this->time, // Seconds
+                    'memory'      => $this->memory, // MB
+                    'memory_peak' => round($point->getMemoryPeak()/1024/1024),
+                    'messages'    => implode(PHP_EOL, $messages),
+                    'queries'     => implode(PHP_EOL, $queries),
+                ];
+
+                $this->result[] = $info;
             }
         }
 
         Performance::instanceReset();
 
-        return PHP_EOL . implode(PHP_EOL, $results);
+        return $this->result;
     }
 
     /**
@@ -211,7 +237,7 @@ class PerformanceLoggerSupport
     }
 
     /**
-     * Ejecuta Performance::point($label);
+     * Run Performance::point($label);
      *
      * @param string $label
      *
@@ -219,6 +245,8 @@ class PerformanceLoggerSupport
      */
     public function addPoint($label)
     {
+        // Clean label, replace \ with _
+        $label = str_replace('\\', '_', $label);
         // Add the label to the points list
         $this->points[] = $label;
 
@@ -233,5 +261,19 @@ class PerformanceLoggerSupport
     public function finishPoint()
     {
         Performance::finish();
+    }
+
+    /**
+     * Insert all performance points
+     *
+     * @return void
+     */
+    public function saveAll()
+    {
+        if (!empty($this->result)) {
+            foreach ($this->result as $item) {
+                self::create($item);
+            }
+        }
     }
 }

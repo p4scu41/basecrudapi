@@ -119,4 +119,86 @@ class FormatterSupport
     {
         return StringSupport::sqlReplaceBindings($query->toSql(), $query->getBindings());
     }
+
+    /**
+     * Parse microtime to human readable
+     *
+     * @param int $time
+     * @param string $unit
+     * @param integer $decimals
+     *
+     * @return strin
+     */
+    public static function timeToHuman($time)
+    {
+        $sign = $time < 0 ? "-" : "";
+
+        $decimal = explode('.', $time);
+        $ms   = abs($time);
+        $sec  = floor($ms / 1000);
+        $ms   = $ms % 1000 . ($decimal[1] ?: '.' . $decimal[1]);
+        $min  = floor($sec / 60);
+        $sec  = $sec % 60;
+        $hr   = floor($min / 60);
+        $min  = $min % 60;
+        $day  = floor($hr / 60);
+        $hr   = $hr % 60;
+
+        return $sign .
+            ($day >0 ? $day . 'd ' : '') .
+            ($hr >0 ? $hr . 'h ' : '') .
+            ($min >0 ? $min . 'm ' : '') .
+            ($sec >0 ? $sec . 's ' : '') .
+            ($ms >0 ? $ms . 'ms' : '')
+        ;
+    }
+
+    /**
+     * Parse bytes to human readable
+     *
+     * @param int $bytes
+     * @param string $unit
+     * @param integer $decimals
+     *
+     * @return strin
+     */
+    public static function memoryToHuman($bytes, $unit = "", $decimals = 2)
+    {
+        if ($bytes <= 0) {
+            return '0.00 KB';
+        }
+
+        $units = [
+            'B' => 0,
+            'KB' => 1,
+            'MB' => 2,
+            'GB' => 3,
+            'TB' => 4,
+            'PB' => 5,
+            'EB' => 6,
+            'ZB' => 7,
+            'YB' => 8
+        ];
+
+        $value = 0;
+        if ($bytes > 0) {
+            // Generate automatic prefix by bytes
+            // If wrong prefix given
+            if (!array_key_exists($unit, $units)) {
+                $pow = floor(log($bytes) / log(1024));
+                $unit = array_search($pow, $units);
+            }
+
+            // Calculate byte value by prefix
+            $value = ($bytes / pow(1024, floor($units[$unit])));
+        }
+
+        // If decimals is not numeric or decimals is less than 0
+        if (!is_numeric($decimals) || $decimals < 0) {
+            $decimals = 2;
+        }
+
+        // Format output
+        return sprintf('%.' . $decimals . 'f ' . $unit, $value);
+    }
 }
