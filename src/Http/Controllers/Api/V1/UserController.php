@@ -3,6 +3,7 @@
 namespace p4scu41\BaseCRUDApi\Http\Controllers\Api\V1;
 
 use p4scu41\BaseCRUDApi\Repositories\UserRepository;
+use Illuminate\Http\Request;
 
 /**
  * Controllers Base Class
@@ -17,8 +18,8 @@ class UserController extends BaseApiController
     /**
      * @param p4scu41\BaseCRUDApi\Repositories\UserRepository
      */
-    public function __construct(UserRepository $repository)
+    public function __construct(UserRepository $repository, Request $request)
     {
-        $this->repository = $repository;
+        parent::__construct($repository, $request);
     }
 }
