@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use p4scu41\BaseCRUDApi\Exceptions\ValidationModelException;
 use p4scu41\BaseCRUDApi\Http\Controllers\BaseController;
+use p4scu41\BaseCRUDApi\Repositories\BaseRepository;
 use p4scu41\BaseCRUDApi\Support\ArraySupport;
 use Prettus\Validator\Exceptions\ValidatorException;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
-use Tylercd100\LERN\Facades\LERN;
 
 /**
  * Controllers Base Api Class
@@ -23,18 +23,12 @@ use Tylercd100\LERN\Facades\LERN;
 class BaseApiController extends BaseController
 {
     /**
-     * BaseRepository
-     *
-     * @var p4scu41\BaseCRUDApi\Repositories\BaseRepository
+     * @param p4scu41\BaseCRUDApi\Repositories\BaseRepository $repository
+     * @param \Illuminate\Http\Request $request Request instance
      */
-    protected $repository;
-
-    /**
-     * @param p4scu41\BaseCRUDApi\Repositories\BaseRepository
-     */
-    public function __construct(BaseRepository $repository)
+    public function __construct(BaseRepository $repository, Request $request)
     {
-        $this->repository = $repository;
+        parent::__construct($repository, $request);
     }
 
     /**
@@ -49,7 +43,6 @@ class BaseApiController extends BaseController
 
             return response()->jsonPaginate($this->repository->paginate());
         } catch (Exception $e) {
-            LERN::record($e);
             return response()->jsonException($e);
         }
     }
@@ -77,7 +70,6 @@ class BaseApiController extends BaseController
                 'status' => SymfonyResponse::HTTP_UNPROCESSABLE_ENTITY,
             ]);
         } catch (Exception $e) {
-            LERN::record($e);
             return response()->jsonException($e);
         }
     }
@@ -100,7 +92,6 @@ class BaseApiController extends BaseController
         } catch (ModelNotFoundException $e) {
             return response()->jsonNotFound();
         } catch (Exception $e) {
-            LERN::record($e);
             return response()->jsonException($e);
         }
     }
@@ -131,7 +122,6 @@ class BaseApiController extends BaseController
         } catch (ModelNotFoundException $e) {
             return response()->jsonNotFound();
         } catch (Exception $e) {
-            LERN::record($e);
             return response()->jsonException($e);
         }
     }
@@ -156,7 +146,6 @@ class BaseApiController extends BaseController
         } catch (ModelNotFoundException $e) {
             return response()->jsonNotFound();
         } catch (Exception $e) {
-            LERN::record($e);
             return response()->jsonException($e);
         }
     }

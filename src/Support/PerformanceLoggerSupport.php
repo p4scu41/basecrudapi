@@ -205,7 +205,7 @@ class PerformanceLoggerSupport extends Model
                         StringSupport::sqlReplaceBindings($item->query, $item->bindings). ';' ;
                 })->toArray();
 
-                $info         = [
+                $info  = [
                     'label'       => $point->getLabel() . '(' . implode(', ', $this->params_values) . ')',
                     'time'        => $this->time, // Seconds
                     'memory'      => $this->memory, // MB

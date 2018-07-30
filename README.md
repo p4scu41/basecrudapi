@@ -37,6 +37,9 @@ php artisan vendor:publish --provider="p4scu41\BaseCRUDApi\BaseCRUDApiServicePro
         - In your config/app.php add Prettus\Repository\Providers\RepositoryServiceProvider::class to the end of the providers array
         - php artisan vendor:publish --provider "Prettus\Repository\Providers\RepositoryServiceProvider"
         - Take a look at config/repository.php
+    * PHP Performance tool [https://github.com/bvanhoekelen/performance]
+        - In app/Http/Kernel.php add \p4scu41\BaseCRUDApi\Http\Middleware\PerformanceLoggerFinish::class, at the end of the $middleware array
+        - You can handle the performance logger in the controller with is_tracking_performance = true, you can add exceptions with except_track_performance array and enable the queries log with is_query_log = true
     * LERN (Laravel Exception Recorder and Notifier) [https://github.com/tylercd100/lern#lern-laravel-exception-recorder-and-notifier]
         - php artisan vendor:publish --provider="Tylercd100\LERN\LERNServiceProvider"
         - Take a look at config/lern.php before run migration
