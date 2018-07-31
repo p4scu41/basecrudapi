@@ -90,6 +90,9 @@ php artisan vendor:publish --provider="p4scu41\BaseCRUDApi\BaseCRUDApiServicePro
         - bower install
         - sudo npm install --global gulp-cli
         - gulp
+    * CORS Middleware for Laravel 5 [https://github.com/barryvdh/laravel-cors]
+    * JSON Web Token Authentication for Laravel & Lumen [https://github.com/tymondesigns/jwt-auth]
+        - In your app/Http/Kernel.php add 'jwt.validation' => \p4scu41\BaseCRUDApi\Http\Middleware\JWTAuthValidation::class to the end of the routeMiddleware array
 
 ### Configuration
 

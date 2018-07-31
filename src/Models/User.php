@@ -10,6 +10,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Cache;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
 /**
  * Class associated with the users table
@@ -35,17 +36,18 @@ use Illuminate\Support\Facades\Cache;
 class User extends BaseModelActivityLog implements
     AuthenticatableContract,
     AuthorizableContract,
-    CanResetPasswordContract
+    CanResetPasswordContract,
+    JWTSubject
 {
     use Authenticatable, Authorizable, CanResetPassword, Notifiable;
 
     /**
-     * inheritDoc
+     * @inheritDoc
      */
     public $table = 'users';
 
     /**
-     * inheritDoc
+     * @inheritDoc
      */
     protected $fillable = [
         'role_id',
@@ -57,7 +59,7 @@ class User extends BaseModelActivityLog implements
     ];
 
     /**
-     * inheritDoc
+     * @inheritDoc
      */
     protected $hidden = [
         'password',
@@ -65,7 +67,7 @@ class User extends BaseModelActivityLog implements
     ];
 
     /**
-     * inheritDoc
+     * @inheritDoc
      */
     public static $rules = [
         'role_id'               => 'bail|required|integer|exists:roles,id',
@@ -129,7 +131,7 @@ class User extends BaseModelActivityLog implements
      */
     public function role()
     {
-        return $this->belongsTo('p4scu41\BaseCRUDApi\Models\Role', 'role_id', 'id');
+        return $this->belongsTo(Role::class, 'role_id', 'id');
     }
 
     /**
@@ -140,5 +142,25 @@ class User extends BaseModelActivityLog implements
     public function isActive()
     {
         return $this->active == 1;
+    }
+
+    /**
+     * Get the identifier that will be stored in the subject claim of the JWT.
+     *
+     * @return mixed
+     */
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims()
+    {
+        return [];
     }
 }

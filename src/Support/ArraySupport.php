@@ -44,12 +44,12 @@ class ArraySupport
      */
     public static function errorsToString($errors, $join = " ")
     {
-        return array_reduce((array) $errors, function ($result, $item) use ($join) {
+        return trim(array_reduce((array) $errors, function ($result, $item) use ($join) {
             return $result . (
                 empty($item) ? '' :
-                (is_array($item) ? static::errorsToString($item) : ' '.StringSupport::trim($item) . $join)
+                (is_array($item) ? static::errorsToString($item) : StringSupport::trim($item) . $join)
             );
-        });
+        }));
     }
 
     /**

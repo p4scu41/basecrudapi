@@ -166,7 +166,7 @@ class ResponseMacroServiceProvider extends ServiceProvider
         Response::macro('jsonInvalidData', function ($data = [], $headers = []) {
             ResponseMacroServiceProvider::setHttpStatusCode($data, SymfonyResponse::HTTP_UNPROCESSABLE_ENTITY);
 
-            return ResponseMacroServiceProvider::responseJson($data, $http_status, $headers);
+            return ResponseMacroServiceProvider::responseJson($data, $data['status'], $headers);
         });
 
         /**
